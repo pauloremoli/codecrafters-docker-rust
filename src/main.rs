@@ -6,7 +6,7 @@ fn main() -> Result<()> {
     let args: Vec<_> = std::env::args().collect();
     let command = &args[3];
     let command_args = &args[4..];
-    Command::new(command)
+    let output = Command::new(command)
         .args(command_args)
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
@@ -17,6 +17,14 @@ fn main() -> Result<()> {
                 command, command_args
             )
         })?;
+
+        if !output.status.success()
+        {
+            match output.status.code() {
+                Some(code) => { std::process::exit(code); },
+                None       => println!("Process terminated by signal")
+            }
+        }
 
     Ok(())
 }
